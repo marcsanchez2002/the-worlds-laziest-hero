@@ -21,9 +21,16 @@ script = ExtResource("1_enemy")
 
 [node name="Visual" type="Node2D" parent="."]
 
-[node name="Body" type="Polygon2D" parent="Visual"]
+[node name="Deform" type="Node2D" parent="Visual"]
+
+[node name="Body" type="Polygon2D" parent="Visual/Deform"]
 color = Color(0.35, 0.85, 0.4, 1)
 polygon = PackedVector2Array(-70, 28, -62, -18, -18, -58, 28, -62, 72, -22, 78, 22, 42, 58, -8, 62, -58, 50)
+
+[node name="Sprite" type="Sprite2D" parent="Visual/Deform"]
+visible = false
+position = Vector2(0, -12)
+scale = Vector2(0.18, 0.18)
 
 [node name="NameLabel" type="Label" parent="."]
 offset_left = -220.0

@@ -25,9 +25,15 @@ var combat_state: State = State.MOVING
 
 var _target_position: Vector2 = Vector2.ZERO
 var _feedback_tween: Tween
+var _is_slime: bool = false
+var _slime_time: float = 0.0
+var _slime_lock: bool = false
+var _slime_tween: Tween
 
 @onready var visual: Node2D = $Visual
-@onready var body: Polygon2D = $Visual/Body
+@onready var deform: Node2D = $Visual/Deform
+@onready var body: Polygon2D = $Visual/Deform/Body
+@onready var sprite: Sprite2D = $Visual/Deform/Sprite
 @onready var name_label: Label = $NameLabel
 @onready var hp_bar: ProgressBar = $HPBar
 @onready var hp_label: Label = $HPLabel
@@ -46,7 +52,12 @@ func setup(definition: Dictionary) -> void:
 	attack_damage = maxf(1.0, roundf(float(definition.get("attack_damage", 1.0))))
 	attack_cooldown = float(definition.get("attack_cooldown", 2.0))
 	attack_timer = 0.0
-	body.color = definition.get("color", Color(0.7, 0.7, 0.7))
+	_is_slime = String(definition.get("id", "")) == "slime"
+	_slime_time = randf() * 8.0
+	_slime_lock = false
+	_kill_slime_tween()
+	_reset_slime_deform()
+	_apply_visual(definition)
 	_apply_boss_visual()
 	_refresh_ui()
 	_set_state(State.MOVING)
@@ -110,17 +121,19 @@ func play_animation(anim_name: String) -> void:
 
 
 func _process(delta: float) -> void:
-	if combat_state == State.DEAD or combat_state == State.DYING:
+	if combat_state == State.DEAD:
 		return
-	if _is_paused():
-		return
-	match combat_state:
-		State.MOVING:
-			_move_towards(delta)
-		State.ATTACKING:
-			_tick_attack(delta)
-		State.HIT:
-			pass
+	if combat_state != State.DYING and not _is_paused():
+		match combat_state:
+			State.MOVING:
+				_move_towards(delta)
+			State.ATTACKING:
+				_tick_attack(delta)
+			State.HIT:
+				pass
+		_update_slime_visual(delta)
+	if _is_slime:
+		_anchor_slime_to_ground()
 
 
 func _move_towards(delta: float) -> void:
@@ -187,7 +200,10 @@ func _play_hit(amount: float, is_crit: bool) -> void:
 		_resume_after_hit()
 		return
 	if SettingsManager.screen_shake:
-		visual.position = Vector2(randf_range(-10.0, 10.0), randf_range(-4.0, 4.0))
+		if _is_slime:
+			visual.position = Vector2(randf_range(-10.0, 10.0), 0.0)
+		else:
+			visual.position = Vector2(randf_range(-10.0, 10.0), randf_range(-4.0, 4.0))
 	visual.modulate = Color(1.2, 1.2, 1.2) if not is_crit else Color(1.4, 1.15, 0.7)
 	_feedback_tween = create_tween()
 	_feedback_tween.tween_property(visual, "position", Vector2.ZERO, 0.12)
@@ -198,6 +214,9 @@ func _play_hit(amount: float, is_crit: bool) -> void:
 func _lunge() -> void:
 	if visual == null:
 		return
+	if _is_slime:
+		_play_slime_attack()
+		return
 	_kill_feedback()
 	_feedback_tween = create_tween()
 	_feedback_tween.tween_property(visual, "position:x", 22.0, 0.08)
@@ -207,6 +226,9 @@ func _lunge() -> void:
 func _play_death() -> void:
 	_spawn_floating("KO", Color(1.0, 0.78, 0.35), true)
 	_kill_feedback()
+	if _is_slime:
+		_play_slime_death()
+		return
 	var tween := create_tween()
 	tween.tween_property(self, "modulate:a", 0.0, 0.28)
 	tween.parallel().tween_property(self, "scale", scale * 0.55, 0.28)
@@ -245,12 +267,34 @@ func _kill_feedback() -> void:
 func _cache_nodes() -> void:
 	if visual == null:
 		visual = get_node_or_null("Visual")
-	if body == null and visual:
-		body = visual.get_node_or_null("Body")
+	if deform == null and visual:
+		deform = visual.get_node_or_null("Deform")
+	var deform_root: Node = deform if deform else visual
+	if body == null and deform_root:
+		body = deform_root.get_node_or_null("Body")
+	if sprite == null and deform_root:
+		sprite = deform_root.get_node_or_null("Sprite")
 	if name_label == null:
 		name_label = $NameLabel
 		hp_bar = $HPBar
 		hp_label = $HPLabel
+
+
+func _apply_visual(definition: Dictionary) -> void:
+	var tex_path := String(definition.get("texture", ""))
+	var has_sprite := tex_path != "" and ResourceLoader.exists(tex_path)
+	if has_sprite and sprite:
+		sprite.texture = load(tex_path)
+		sprite.visible = true
+		if body:
+			body.visible = false
+		return
+	if sprite:
+		sprite.visible = false
+		sprite.texture = null
+	if body:
+		body.visible = true
+		body.color = definition.get("color", Color(0.7, 0.7, 0.7))
 
 
 func _apply_boss_visual() -> void:
@@ -271,3 +315,143 @@ func _refresh_ui() -> void:
 	hp_bar.max_value = max_hp
 	hp_bar.value = current_hp
 	hp_label.text = "%s / %s" % [NumberUtil.format_int(current_hp), NumberUtil.format_int(max_hp)]
+
+
+func _update_slime_visual(delta: float) -> void:
+	if not _is_slime or deform == null or _slime_lock:
+		return
+	_slime_time += delta
+	if combat_state == State.MOVING:
+		_apply_slime_crawl()
+	else:
+		_apply_slime_idle()
+
+
+func _apply_slime_idle() -> void:
+	var breathe := 0.5 + 0.5 * sin(_slime_time * TAU / 2.6)
+	var ripple := sin(_slime_time * TAU / 1.15)
+	var wave := sin(_slime_time * TAU / 1.7)
+	var sx := 1.0 + breathe * 0.07 + ripple * 0.012
+	var sy := 1.0 - breathe * 0.05
+	_set_slime_deform(Vector2(sx, sy), 0.0, wave * 0.045)
+
+
+func _apply_slime_crawl() -> void:
+	var facing := _slime_facing()
+	var t := fposmod(_slime_time, 0.92) / 0.92
+	var sx: float
+	var sy: float
+	var ox: float
+	var sk: float
+	if t < 0.33:
+		var u := _slime_smooth(t / 0.33)
+		sx = lerpf(1.0, 0.90, u)
+		sy = 1.0
+		ox = lerpf(0.0, facing * -4.0, u)
+		sk = lerpf(0.0, facing * -0.05, u)
+	elif t < 0.66:
+		var u := _slime_smooth((t - 0.33) / 0.33)
+		sx = lerpf(0.90, 1.14, u)
+		sy = lerpf(1.0, 0.96, u)
+		ox = lerpf(facing * -4.0, facing * 9.0, u)
+		sk = lerpf(facing * -0.05, facing * 0.10, u)
+	else:
+		var u := _slime_smooth((t - 0.66) / 0.34)
+		sx = lerpf(1.14, 1.0, u)
+		sy = lerpf(0.96, 1.0, u)
+		ox = lerpf(facing * 9.0, 0.0, u)
+		sk = lerpf(facing * 0.10, 0.0, u)
+	sk += sin(_slime_time * 6.0) * 0.02
+	_set_slime_deform(Vector2(sx, sy), ox, sk)
+
+
+func _play_slime_attack() -> void:
+	if deform == null:
+		return
+	_kill_feedback()
+	_kill_slime_tween()
+	_slime_lock = true
+	var facing := _slime_facing()
+	_slime_tween = create_tween()
+	_slime_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_slime_tween.tween_property(deform, "scale", Vector2(0.86, 1.0), 0.05)
+	_slime_tween.parallel().tween_property(deform, "position:x", facing * -8.0, 0.05)
+	_slime_tween.parallel().tween_property(deform, "skew", facing * -0.08, 0.05)
+	_slime_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_slime_tween.tween_property(deform, "scale", Vector2(1.24, 0.92), 0.07)
+	_slime_tween.parallel().tween_property(deform, "position:x", facing * 16.0, 0.07)
+	_slime_tween.parallel().tween_property(deform, "skew", facing * 0.16, 0.07)
+	_slime_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+	_slime_tween.tween_property(deform, "scale", Vector2.ONE, 0.12)
+	_slime_tween.parallel().tween_property(deform, "position:x", 0.0, 0.12)
+	_slime_tween.parallel().tween_property(deform, "skew", 0.0, 0.12)
+	_slime_tween.finished.connect(func() -> void:
+		_slime_lock = false
+	, CONNECT_ONE_SHOT)
+
+
+func _play_slime_death() -> void:
+	_kill_slime_tween()
+	_slime_lock = true
+	if deform == null:
+		_set_state(State.DEAD)
+		died.emit()
+		return
+	deform.position.x = 0.0
+	deform.skew = 0.0
+	_slime_tween = create_tween()
+	_slime_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	_slime_tween.tween_property(deform, "scale", Vector2(1.36, 0.18), 0.42)
+	_slime_tween.tween_property(self, "modulate:a", 0.0, 0.32)
+	_slime_tween.finished.connect(func() -> void:
+		_set_state(State.DEAD)
+		died.emit()
+	, CONNECT_ONE_SHOT)
+
+
+func _set_slime_deform(body_scale: Vector2, offset_x: float, body_skew: float) -> void:
+	if deform == null:
+		return
+	deform.scale = body_scale
+	deform.skew = body_skew
+	deform.position.x = offset_x
+
+
+func _anchor_slime_to_ground() -> void:
+	if deform == null:
+		return
+	deform.position.y = _slime_foot_y() * (1.0 - deform.scale.y)
+
+
+func _slime_foot_y() -> float:
+	if sprite and sprite.visible and sprite.texture:
+		return sprite.position.y + sprite.texture.get_height() * absf(sprite.scale.y) * 0.5
+	if body:
+		var max_y := 0.0
+		for point in body.polygon:
+			max_y = maxf(max_y, point.y)
+		return max_y
+	return 80.0
+
+
+func _slime_facing() -> float:
+	return -1.0 if (_target_position.x - global_position.x) < 0.0 else 1.0
+
+
+func _slime_smooth(value: float) -> float:
+	var u := clampf(value, 0.0, 1.0)
+	return u * u * (3.0 - 2.0 * u)
+
+
+func _reset_slime_deform() -> void:
+	if deform == null:
+		return
+	deform.scale = Vector2.ONE
+	deform.skew = 0.0
+	deform.position = Vector2.ZERO
+
+
+func _kill_slime_tween() -> void:
+	if _slime_tween and _slime_tween.is_valid():
+		_slime_tween.kill()
+	_slime_tween = null

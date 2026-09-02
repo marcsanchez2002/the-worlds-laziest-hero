@@ -51,6 +51,7 @@ static func for_stage(stage: int) -> Dictionary:
 		"world_id": int(world["id"]),
 		"world_name": String(world["name"]),
 		"world_gold_mult": float(world["gold_mult"]),
+		"texture": String(template.get("texture", "")),
 	}
 
 
@@ -66,6 +67,7 @@ static func event_enemy(event_id: String, stage: int) -> Dictionary:
 	base["is_world_boss"] = false
 	base["mechanic"] = String(template.get("mechanic", ""))
 	base["event_id"] = event_id
+	base["texture"] = String(template.get("texture", ""))
 	return base
 
 
@@ -124,7 +126,7 @@ static func _template(id: String) -> Dictionary:
 		"demon_productivity":
 			return _make("demon_productivity", "The Demon of Productivity", "The Demon of Productivity", 480.0, 200.0, Color(0.85, 0.35, 0.12), "retaliate_resist", 55.0, 95.0, 8.0, 2.0)
 		_:
-			return _make("slime", "Slime", "THE BIG SLIME", 20.0, 5.0, Color(0.35, 0.85, 0.4), "", 50.0, 80.0, 1.0, 2.0)
+			return _make("slime", "Slime", "THE BIG SLIME", 20.0, 5.0, Color(0.35, 0.85, 0.4), "", 50.0, 80.0, 1.0, 2.0, "res://assets/enemies/slime.png")
 
 
 static func _make(
@@ -138,7 +140,8 @@ static func _make(
 	move_speed: float = 50.0,
 	attack_range: float = 80.0,
 	attack_damage: float = 1.0,
-	attack_cooldown: float = 2.0
+	attack_cooldown: float = 2.0,
+	texture: String = ""
 ) -> Dictionary:
 	return {
 		"id": id,
@@ -152,4 +155,5 @@ static func _make(
 		"attack_range": attack_range,
 		"attack_damage": attack_damage,
 		"attack_cooldown": attack_cooldown,
+		"texture": texture,
 	}
