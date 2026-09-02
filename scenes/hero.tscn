@@ -1,0 +1,138 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/hero.gd" id="1_hero"]
+[ext_resource type="Texture2D" path="res://assets/heroes/hero_idle.png" id="2_idle"]
+[ext_resource type="Texture2D" path="res://assets/heroes/hero_attack.png" id="3_attack"]
+[ext_resource type="Texture2D" path="res://assets/heroes/hero_attack2.png" id="4_attack2"]
+[ext_resource type="Texture2D" path="res://assets/heroes/hero_down.png" id="5_down"]
+[ext_resource type="Texture2D" path="res://assets/heroes/hero_wake_up.png" id="6_wake"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_bg"]
+bg_color = Color(0.12, 0.13, 0.16, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_fill"]
+bg_color = Color(0.28, 0.72, 0.38, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_hero"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_idle")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_attack2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_attack")
+}],
+"loop": false,
+"name": &"attack",
+"speed": 2.5
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_down")
+}],
+"loop": false,
+"name": &"down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_wake")
+}],
+"loop": false,
+"name": &"wake_up",
+"speed": 2.5
+}]
+
+[node name="Hero" type="Node2D"]
+script = ExtResource("1_hero")
+
+[node name="Visual" type="Node2D" parent="."]
+
+[node name="Bed" type="Polygon2D" parent="Visual"]
+visible = false
+color = Color(0.55, 0.38, 0.28, 1)
+polygon = PackedVector2Array(-200, -60, 200, -60, 200, 60, -200, 60)
+
+[node name="Pillow" type="Polygon2D" parent="Visual"]
+visible = false
+color = Color(0.93, 0.88, 0.78, 1)
+polygon = PackedVector2Array(-190, -38, -78, -44, -72, 28, -188, 34)
+
+[node name="Blanket" type="Polygon2D" parent="Visual"]
+visible = false
+color = Color(0.32, 0.42, 0.62, 1)
+polygon = PackedVector2Array(-55, -44, 190, -40, 194, 46, -50, 44)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Visual"]
+position = Vector2(0, -50)
+scale = Vector2(0.25, 0.25)
+sprite_frames = SubResource("SpriteFrames_hero")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="SleepLabel" type="Label" parent="Visual"]
+offset_left = -200.0
+offset_top = -92.0
+offset_right = 200.0
+offset_bottom = -58.0
+theme_override_colors/font_color = Color(0.75, 0.82, 0.95, 1)
+theme_override_font_sizes/font_size = 26
+text = "ZZZ"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HeroLabel" type="Label" parent="Visual"]
+visible = false
+offset_left = -200.0
+offset_top = -22.0
+offset_right = 200.0
+offset_bottom = 28.0
+theme_override_colors/font_color = Color(0.96, 0.93, 0.82, 1)
+theme_override_font_sizes/font_size = 32
+text = "HERO"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HitSpark" type="Polygon2D" parent="."]
+position = Vector2(-210, 0)
+color = Color(1, 0.4, 0.3, 0)
+polygon = PackedVector2Array(-18, 0, 0, -18, 18, 0, 0, 18)
+
+[node name="HPBar" type="ProgressBar" parent="."]
+custom_minimum_size = Vector2(280, 18)
+offset_left = -140.0
+offset_top = 78.0
+offset_right = 140.0
+offset_bottom = 96.0
+theme_override_styles/background = SubResource("StyleBoxFlat_hp_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_hp_fill")
+max_value = 100.0
+value = 100.0
+show_percentage = false
+
+[node name="HPLabel" type="Label" parent="."]
+offset_left = -160.0
+offset_top = 98.0
+offset_right = 160.0
+offset_bottom = 126.0
+theme_override_colors/font_color = Color(0.82, 0.92, 0.8, 1)
+theme_override_font_sizes/font_size = 16
+text = "100 / 100"
+horizontal_alignment = 1
+vertical_alignment = 1

@@ -1,0 +1,48 @@
+# Godot 4.2+
+~*.dll
+
+# Godot 4+
+/.godot/
+.nomedia
+/android/
+
+# Godot 3 leftover + export secrets
+.import/
+export.cfg
+export_credentials.cfg
+*.tmp
+
+# Imported translations (generated from CSV)
+*.translation
+
+# Mono / C#
+.mono/
+data_*/
+mono_crash.*.json
+
+# Game exports
+/export/
+/exports/
+/build/
+/builds/
+*.pck
+*.apk
+*.aab
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*~
+
+# Local editor / machine-specific
+.cursor/
+*.code-workspace
+
+# Secrets
+.env
+.env.*
+*.pem
+*.key

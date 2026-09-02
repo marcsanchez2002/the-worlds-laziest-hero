@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="BalanceConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/balance_config.gd" id="1_bal"]
+
+[resource]
+script = ExtResource("1_bal")
+enemy_hp_scaling = 1.15
+gold_scaling = 1.15
+upgrade_cost_scaling = 1.15
+dps_scaling = 1.0
+prestige_scaling = 1.0
+crit_chance = 0.05
+crit_damage = 2.0
+attack_cooldown = 0.5
+auto_attack_interval = 1.0
+helper_tick_interval = 1.0
+combo_timeout = 3.0
+warrior_dps = 5.0
+damage_upgrade_base_cost = 10.0
+hp_regen_upgrade_base_cost = 50.0
+hp_regen_per_level = 1.0
+auto_attack_cost = 100.0
+warrior_base_cost = 500.0
+pillow_base_cost = 75.0
+pillow_lazy_power = 0.05
+boss_hp_mult = 5.0
+boss_gold_mult = 3.0
+world_boss_hp_mult = 12.0
+world_boss_gold_mult = 8.0
+autosave_interval = 30.0
+hero_max_comfort = 100.0
+comfort_regen = 2.0
+sleep_resist_mult = 0.5
+sleep_hits_to_wake = 8
+retaliate_damage = 8.0
+event_chance = 0.08
+event_cooldown = 40.0
+prestige_unlock_stage = 51
+enemy_spawn_delay = 0.75
+hero_max_hp = 100.0
+hero_hp_regen = 0.0
+hero_recovery_time = 3.0

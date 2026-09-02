@@ -1,0 +1,356 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/settings.gd" id="1_settings"]
+[ext_resource type="Theme" path="res://resources/menu_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://scripts/ui/menu_button.gd" id="3_btn"]
+[ext_resource type="PackedScene" path="res://scenes/ui/menu_dialog.tscn" id="4_dialog"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_cats"]
+allow_unpress = false
+
+[node name="Settings" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_settings")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.07, 0.08, 0.11, 1)
+
+[node name="Header" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -300.0
+offset_top = 48.0
+offset_right = 300.0
+offset_bottom = 120.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.91, 0.76, 0.42, 1)
+theme_override_font_sizes/font_size = 52
+text = "SETTINGS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Body" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -620.0
+offset_top = -250.0
+offset_right = 620.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 28
+
+[node name="Categories" type="VBoxContainer" parent="Body"]
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="GameplayCat" type="Button" parent="Body/Categories"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_cats")
+text = "GAMEPLAY"
+script = ExtResource("3_btn")
+
+[node name="AudioCat" type="Button" parent="Body/Categories"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+toggle_mode = true
+button_group = SubResource("ButtonGroup_cats")
+text = "AUDIO"
+script = ExtResource("3_btn")
+
+[node name="VideoCat" type="Button" parent="Body/Categories"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+toggle_mode = true
+button_group = SubResource("ButtonGroup_cats")
+text = "VIDEO"
+script = ExtResource("3_btn")
+
+[node name="Content" type="PanelContainer" parent="Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Margin" type="MarginContainer" parent="Body/Content"]
+layout_mode = 2
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 28
+
+[node name="GameplayPage" type="VBoxContainer" parent="Body/Content/Margin"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="DamageRow" type="HBoxContainer" parent="Body/Content/Margin/GameplayPage"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="DamageLabel" type="Label" parent="Body/Content/Margin/GameplayPage/DamageRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "Damage Numbers"
+
+[node name="DamageNumbersButton" type="Button" parent="Body/Content/Margin/GameplayPage/DamageRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 48)
+layout_mode = 2
+text = "ON"
+script = ExtResource("3_btn")
+
+[node name="ShakeRow" type="HBoxContainer" parent="Body/Content/Margin/GameplayPage"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="ShakeLabel" type="Label" parent="Body/Content/Margin/GameplayPage/ShakeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "Screen Shake"
+
+[node name="ScreenShakeButton" type="Button" parent="Body/Content/Margin/GameplayPage/ShakeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 48)
+layout_mode = 2
+text = "ON"
+script = ExtResource("3_btn")
+
+[node name="AutoRow" type="HBoxContainer" parent="Body/Content/Margin/GameplayPage"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="AutoLabel" type="Label" parent="Body/Content/Margin/GameplayPage/AutoRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "Auto Advance"
+
+[node name="AutoAdvanceButton" type="Button" parent="Body/Content/Margin/GameplayPage/AutoRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 48)
+layout_mode = 2
+text = "ON"
+script = ExtResource("3_btn")
+
+[node name="AudioPage" type="VBoxContainer" parent="Body/Content/Margin"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="MasterLabel" type="Label" parent="Body/Content/Margin/AudioPage"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "MASTER VOLUME"
+
+[node name="MasterRow" type="HBoxContainer" parent="Body/Content/Margin/AudioPage"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="MasterSlider" type="HSlider" parent="Body/Content/Margin/AudioPage/MasterRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="MasterValue" type="Label" parent="Body/Content/Margin/AudioPage/MasterRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+text = "100%"
+horizontal_alignment = 2
+
+[node name="MusicLabel" type="Label" parent="Body/Content/Margin/AudioPage"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "MUSIC VOLUME"
+
+[node name="MusicRow" type="HBoxContainer" parent="Body/Content/Margin/AudioPage"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="MusicSlider" type="HSlider" parent="Body/Content/Margin/AudioPage/MusicRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="MusicValue" type="Label" parent="Body/Content/Margin/AudioPage/MusicRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+text = "100%"
+horizontal_alignment = 2
+
+[node name="SfxLabel" type="Label" parent="Body/Content/Margin/AudioPage"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "SFX VOLUME"
+
+[node name="SfxRow" type="HBoxContainer" parent="Body/Content/Margin/AudioPage"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SfxSlider" type="HSlider" parent="Body/Content/Margin/AudioPage/SfxRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="SfxValue" type="Label" parent="Body/Content/Margin/AudioPage/SfxRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+text = "100%"
+horizontal_alignment = 2
+
+[node name="MuteRow" type="HBoxContainer" parent="Body/Content/Margin/AudioPage"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="MuteLabel" type="Label" parent="Body/Content/Margin/AudioPage/MuteRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "Mute All"
+
+[node name="MuteAllButton" type="Button" parent="Body/Content/Margin/AudioPage/MuteRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 48)
+layout_mode = 2
+text = "OFF"
+script = ExtResource("3_btn")
+
+[node name="VideoPage" type="VBoxContainer" parent="Body/Content/Margin"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="FullscreenRow" type="HBoxContainer" parent="Body/Content/Margin/VideoPage"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="FullscreenLabel" type="Label" parent="Body/Content/Margin/VideoPage/FullscreenRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "Fullscreen"
+
+[node name="FullscreenButton" type="Button" parent="Body/Content/Margin/VideoPage/FullscreenRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 48)
+layout_mode = 2
+text = "OFF"
+script = ExtResource("3_btn")
+
+[node name="VsyncRow" type="HBoxContainer" parent="Body/Content/Margin/VideoPage"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="VsyncLabel" type="Label" parent="Body/Content/Margin/VideoPage/VsyncRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "VSync"
+
+[node name="VsyncButton" type="Button" parent="Body/Content/Margin/VideoPage/VsyncRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 48)
+layout_mode = 2
+text = "ON"
+script = ExtResource("3_btn")
+
+[node name="ResolutionRow" type="HBoxContainer" parent="Body/Content/Margin/VideoPage"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="ResolutionLabel" type="Label" parent="Body/Content/Margin/VideoPage/ResolutionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "Resolution"
+
+[node name="ResolutionOption" type="OptionButton" parent="Body/Content/Margin/VideoPage/ResolutionRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 48)
+layout_mode = 2
+
+[node name="Footer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -520.0
+offset_top = -120.0
+offset_right = 520.0
+offset_bottom = -48.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="BackButton" type="Button" parent="Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 56)
+layout_mode = 2
+text = "BACK"
+script = ExtResource("3_btn")
+
+[node name="ResetButton" type="Button" parent="Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(280, 56)
+layout_mode = 2
+text = "RESET TO DEFAULTS"
+script = ExtResource("3_btn")
+
+[node name="ApplyButton" type="Button" parent="Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 56)
+layout_mode = 2
+text = "APPLY CHANGES"
+script = ExtResource("3_btn")
+
+[node name="MenuDialog" parent="." instance=ExtResource("4_dialog")]
+unique_name_in_owner = true
+layout_mode = 1
+visible = false

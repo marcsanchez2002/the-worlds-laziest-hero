@@ -1,0 +1,228 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/upgrade_panel.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+content_margin_left = 22.0
+content_margin_top = 20.0
+content_margin_right = 22.0
+content_margin_bottom = 20.0
+bg_color = Color(0.11, 0.13, 0.18, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.91, 0.76, 0.42, 0.55)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="UpgradePanel" type="PanelContainer"]
+custom_minimum_size = Vector2(360, 0)
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+script = ExtResource("1_script")
+
+[node name="Scroll" type="ScrollContainer" parent="."]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="List" type="VBoxContainer" parent="Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="Scroll/List"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.91, 0.76, 0.42, 1)
+theme_override_font_sizes/font_size = 22
+text = "COMBAT"
+horizontal_alignment = 1
+
+[node name="SlapBox" type="VBoxContainer" parent="Scroll/List"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="SlapName" type="Label" parent="Scroll/List/SlapBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.93, 0.82, 1)
+theme_override_font_sizes/font_size = 22
+text = "Stronger Slap"
+
+[node name="SlapLevelLabel" type="Label" parent="Scroll/List/SlapBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Level: 0"
+
+[node name="SlapEffect" type="Label" parent="Scroll/List/SlapBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.86, 0.62, 1)
+theme_override_font_sizes/font_size = 16
+text = "+1 Damage"
+
+[node name="SlapCostLabel" type="Label" parent="Scroll/List/SlapBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Cost: 10 Gold"
+
+[node name="SlapBuyButton" type="Button" parent="Scroll/List/SlapBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "BUY"
+
+[node name="Sep1" type="HSeparator" parent="Scroll/List"]
+layout_mode = 2
+
+[node name="RegenBox" type="VBoxContainer" parent="Scroll/List"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="RegenName" type="Label" parent="Scroll/List/RegenBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.93, 0.82, 1)
+theme_override_font_sizes/font_size = 22
+text = "Bed Rest"
+
+[node name="RegenLevelLabel" type="Label" parent="Scroll/List/RegenBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Level: 0  |  0 HP/s"
+
+[node name="RegenEffect" type="Label" parent="Scroll/List/RegenBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.86, 0.62, 1)
+theme_override_font_sizes/font_size = 16
+text = "+1 HP/s"
+
+[node name="RegenCostLabel" type="Label" parent="Scroll/List/RegenBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Cost: 50 Gold"
+
+[node name="RegenBuyButton" type="Button" parent="Scroll/List/RegenBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "BUY"
+
+[node name="SepRegen" type="HSeparator" parent="Scroll/List"]
+layout_mode = 2
+
+[node name="AssistantBox" type="VBoxContainer" parent="Scroll/List"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="AssistantName" type="Label" parent="Scroll/List/AssistantBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.93, 0.82, 1)
+theme_override_font_sizes/font_size = 22
+text = "Lazy Assistant"
+
+[node name="AssistantDesc" type="Label" parent="Scroll/List/AssistantBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.8, 0.84, 1)
+theme_override_font_sizes/font_size = 15
+text = "Automatically attacks the enemy every second."
+autowrap_mode = 3
+
+[node name="AssistantCostLabel" type="Label" parent="Scroll/List/AssistantBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Cost: 100 Gold"
+
+[node name="AssistantBuyButton" type="Button" parent="Scroll/List/AssistantBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "BUY"
+
+[node name="Sep2" type="HSeparator" parent="Scroll/List"]
+layout_mode = 2
+
+[node name="PillowBox" type="VBoxContainer" parent="Scroll/List"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="PillowName" type="Label" parent="Scroll/List/PillowBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.93, 0.82, 1)
+theme_override_font_sizes/font_size = 22
+text = "Better Pillow"
+
+[node name="PillowEffect" type="Label" parent="Scroll/List/PillowBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.86, 0.62, 1)
+theme_override_font_sizes/font_size = 16
+text = "+0.05 Lazy Power"
+
+[node name="PillowLevelLabel" type="Label" parent="Scroll/List/PillowBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Level: 0"
+
+[node name="PillowCostLabel" type="Label" parent="Scroll/List/PillowBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Cost: 75 Gold"
+
+[node name="PillowBuyButton" type="Button" parent="Scroll/List/PillowBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "BUY"
+
+[node name="SepPillow" type="HSeparator" parent="Scroll/List"]
+layout_mode = 2
+
+[node name="WarriorBox" type="VBoxContainer" parent="Scroll/List"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="WarriorName" type="Label" parent="Scroll/List/WarriorBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.93, 0.82, 1)
+theme_override_font_sizes/font_size = 22
+text = "Lazy Squire"
+
+[node name="WarriorEffect" type="Label" parent="Scroll/List/WarriorBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.86, 0.62, 1)
+theme_override_font_sizes/font_size = 16
+text = "Damage: 5 DPS"
+
+[node name="WarriorCountLabel" type="Label" parent="Scroll/List/WarriorBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Lazy Squires: 0"
+
+[node name="WarriorDpsLabel" type="Label" parent="Scroll/List/WarriorBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Total DPS: 0"
+
+[node name="WarriorCostLabel" type="Label" parent="Scroll/List/WarriorBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Cost: 500 Gold"
+
+[node name="WarriorBuyButton" type="Button" parent="Scroll/List/WarriorBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "BUY"
