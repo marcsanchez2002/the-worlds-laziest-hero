@@ -32,15 +32,15 @@ animations = [{
 "speed": 5.0
 }, {
 "frames": [{
-"duration": 1.0,
+"duration": 0.45,
 "texture": ExtResource("4_attack2")
 }, {
-"duration": 1.0,
+"duration": 1.6,
 "texture": ExtResource("3_attack")
 }],
 "loop": false,
 "name": &"attack",
-"speed": 2.5
+"speed": 12.0
 }, {
 "frames": [{
 "duration": 1.0,

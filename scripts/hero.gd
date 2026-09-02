@@ -166,8 +166,8 @@ func _nudge_attack() -> void:
 	if _action_tween and _action_tween.is_valid():
 		_action_tween.kill()
 	_action_tween = create_tween()
-	_action_tween.tween_property(visual, "position:x", -18.0, 0.08)
-	_action_tween.tween_property(visual, "position:x", 0.0, 0.12)
+	_action_tween.tween_property(visual, "position:x", -18.0, 0.04)
+	_action_tween.tween_property(visual, "position:x", 0.0, 0.10)
 
 
 func _shake() -> void:
