@@ -296,6 +296,11 @@ func get_recovery_time_left() -> float:
 	return _down_timer.time_left
 
 
+func get_death_checkpoint_stage() -> int:
+	var interval := maxi(1, BALANCE.death_checkpoint_interval)
+	return floori(float(stage - 1) / float(interval)) * interval + 1
+
+
 func pause_combat() -> void:
 	if _combat_paused:
 		return
@@ -1377,12 +1382,17 @@ func _on_hero_down_timeout() -> void:
 	if _hero and _hero.has_method("recover_from_down"):
 		_hero.recover_from_down()
 	else:
-		resume_combat()
+		_on_hero_recovered()
 
 
 func _on_hero_recovered() -> void:
+	stage = get_death_checkpoint_stage()
+	stage_changed.emit(stage)
+	_update_stage_banner()
+	_spawn_deferred = false
 	resume_combat()
-	announcement.emit("BACK TO NAP!")
+	spawn_enemy()
+	announcement.emit("RETURNING TO STAGE %s" % str(stage))
 
 
 func _update_stage_banner() -> void:

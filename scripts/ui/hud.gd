@@ -328,7 +328,7 @@ func _show_recovery_done() -> void:
 	if _recovery_panel == null:
 		return
 	_recovery_phase = "done"
-	_recovery_title.text = "BACK TO NAP!"
+	_recovery_title.text = "RETURNING TO STAGE %s" % str(GameManager.stage)
 	_recovery_subtitle.text = "+ FULL HP"
 	_recovery_count.text = ""
 	_recovery_panel.visible = true

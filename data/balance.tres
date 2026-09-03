@@ -40,3 +40,4 @@ enemy_spawn_delay = 0.75
 hero_max_hp = 100.0
 hero_hp_regen = 0.0
 hero_recovery_time = 3.0
+death_checkpoint_interval = 25

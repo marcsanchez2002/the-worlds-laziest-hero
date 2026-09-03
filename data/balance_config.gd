@@ -45,3 +45,4 @@ class_name BalanceConfig
 @export var hero_max_hp: float = 100.0
 @export var hero_hp_regen: float = 0.0
 @export var hero_recovery_time: float = 3.0
+@export var death_checkpoint_interval: int = 25

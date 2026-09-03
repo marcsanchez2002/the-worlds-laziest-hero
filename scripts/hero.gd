@@ -14,7 +14,7 @@ const SPRITE_ATTACK := "attack"
 const SPRITE_DOWN := "down"
 const SPRITE_WAKE_UP := "wake_up"
 const HERO_SPRITE_POSITION := Vector2(0, -50)
-const HERO_SPRITE_SCALE := Vector2(0.22, 0.22)
+const HERO_SPRITE_SCALE := Vector2(0.18, 0.18)
 
 enum State { ACTIVE, DOWN }
 
@@ -34,7 +34,6 @@ var _sprite_oneshot := false
 @onready var visual: Node2D = $Visual
 @onready var bed: Polygon2D = $Visual/Bed
 @onready var bed_art: Sprite2D = $Visual/BedArt
-@onready var sleep_label: Label = $Visual/SleepLabel
 @onready var hp_bar: ProgressBar = $HPBar
 @onready var hp_label: Label = $HPLabel
 @onready var hit_spark: Polygon2D = $HitSpark
@@ -77,7 +76,6 @@ func setup_vitals(max_hp_value: float, regen: float) -> void:
 		animated_sprite.scale = HERO_SPRITE_SCALE
 		animated_sprite.modulate = Color.WHITE
 	_sprite_oneshot = false
-	_set_sleep_text()
 	_start_idle()
 	_refresh_hp_ui()
 	hp_changed.emit(current_hp, max_hp)
@@ -116,7 +114,6 @@ func heal(amount: float) -> void:
 func recover_from_down() -> void:
 	state = State.ACTIVE
 	current_hp = max_hp
-	_set_sleep_text()
 	_play_wake()
 	_spawn_floating("+ FULL HP", Color(0.55, 0.95, 0.62), true)
 	_refresh_hp_ui()
@@ -129,7 +126,6 @@ func apply_bed_tier(level: int, color: Color) -> void:
 	if bed:
 		bed.color = color
 	scale = Vector2.ONE * (1.0 + float(level) * 0.04)
-	_set_sleep_text()
 
 
 func play_animation(anim_name: String) -> void:
@@ -160,7 +156,7 @@ func _start_idle() -> void:
 		_idle_tween.kill()
 	animated_sprite.scale = HERO_SPRITE_SCALE
 	_idle_tween = create_tween().set_loops()
-	_idle_tween.tween_property(animated_sprite, "scale", Vector2(0.2233, 0.2167), 1.15)
+	_idle_tween.tween_property(animated_sprite, "scale", Vector2(0.1827, 0.1773), 1.15)
 	_idle_tween.tween_property(animated_sprite, "scale", HERO_SPRITE_SCALE, 1.15)
 	if not _sprite_oneshot:
 		_play_sprite(SPRITE_IDLE, false)
@@ -186,8 +182,6 @@ func _play_down() -> void:
 		_idle_tween.kill()
 	if _action_tween and _action_tween.is_valid():
 		_action_tween.kill()
-	if sleep_label:
-		sleep_label.text = "💤"
 	if animated_sprite:
 		animated_sprite.scale = HERO_SPRITE_SCALE
 		_action_tween = create_tween()
@@ -261,15 +255,6 @@ func _on_sprite_animation_finished() -> void:
 		return
 	if finished == SPRITE_ATTACK or finished == SPRITE_WAKE_UP:
 		_play_sprite(SPRITE_IDLE, false)
-
-
-func _set_sleep_text() -> void:
-	if sleep_label == null:
-		return
-	if state == State.DOWN:
-		sleep_label.text = "💤"
-		return
-	sleep_label.text = "ZZZ" if _bed_level < 4 else "Zzz..+"
 
 
 func _flash(tint: Color) -> void:
