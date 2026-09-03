@@ -1,6 +1,11 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/enemy.gd" id="1_enemy"]
+[ext_resource type="Texture2D" path="res://assets/enemies/goblin_idle.png" id="2_goblin_idle"]
+[ext_resource type="Texture2D" path="res://assets/enemies/goblin_move.png" id="3_goblin_move"]
+[ext_resource type="Texture2D" path="res://assets/enemies/goblin_attack.png" id="4_goblin_attack"]
+[ext_resource type="Texture2D" path="res://assets/enemies/goblin_hurt.png" id="5_goblin_hurt"]
+[ext_resource type="Texture2D" path="res://assets/enemies/goblin_death.png" id="6_goblin_death"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_bg"]
 bg_color = Color(0.12, 0.13, 0.16, 1)
@@ -15,6 +20,49 @@ corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_goblin"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_goblin_idle")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_goblin_move")
+}],
+"loop": true,
+"name": &"move",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 2.0,
+"texture": ExtResource("4_goblin_attack")
+}],
+"loop": false,
+"name": &"attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_goblin_hurt")
+}],
+"loop": false,
+"name": &"hurt",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_goblin_death")
+}],
+"loop": false,
+"name": &"death",
+"speed": 5.0
+}]
 
 [node name="Enemy" type="Node2D"]
 script = ExtResource("1_enemy")
@@ -31,6 +79,14 @@ polygon = PackedVector2Array(-70, 28, -62, -18, -18, -58, 28, -62, 72, -22, 78, 
 visible = false
 position = Vector2(0, -12)
 scale = Vector2(0.18, 0.18)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Visual/Deform"]
+visible = false
+position = Vector2(0, -12)
+scale = Vector2(0.18, 0.18)
+sprite_frames = SubResource("SpriteFrames_goblin")
+animation = &"idle"
+autoplay = "idle"
 
 [node name="NameLabel" type="Label" parent="."]
 offset_left = -220.0

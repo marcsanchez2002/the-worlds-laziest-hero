@@ -26,6 +26,9 @@ var combat_state: State = State.MOVING
 var _target_position: Vector2 = Vector2.ZERO
 var _feedback_tween: Tween
 var _is_slime: bool = false
+var _is_goblin: bool = false
+var _goblin_oneshot: bool = false
+var _goblin_anim_connected: bool = false
 var _slime_time: float = 0.0
 var _slime_lock: bool = false
 var _slime_tween: Tween
@@ -34,6 +37,7 @@ var _slime_tween: Tween
 @onready var deform: Node2D = $Visual/Deform
 @onready var body: Polygon2D = $Visual/Deform/Body
 @onready var sprite: Sprite2D = $Visual/Deform/Sprite
+@onready var animated_sprite: AnimatedSprite2D = $Visual/Deform/AnimatedSprite2D
 @onready var name_label: Label = $NameLabel
 @onready var hp_bar: ProgressBar = $HPBar
 @onready var hp_label: Label = $HPLabel
@@ -53,6 +57,8 @@ func setup(definition: Dictionary) -> void:
 	attack_cooldown = float(definition.get("attack_cooldown", 2.0))
 	attack_timer = 0.0
 	_is_slime = String(definition.get("id", "")) == "slime"
+	_is_goblin = String(definition.get("id", "")) == "goblin"
+	_goblin_oneshot = false
 	_slime_time = randf() * 8.0
 	_slime_lock = false
 	_kill_slime_tween()
@@ -61,6 +67,8 @@ func setup(definition: Dictionary) -> void:
 	_apply_boss_visual()
 	_refresh_ui()
 	_set_state(State.MOVING)
+	if _is_goblin:
+		_play_goblin_sprite("idle", false)
 
 
 func begin_approach(target: Vector2) -> void:
@@ -113,9 +121,11 @@ func play_animation(anim_name: String) -> void:
 		"attack":
 			_lunge()
 		"hit":
-			pass
+			if _is_goblin:
+				_play_goblin_sprite("hurt", true)
 		"death":
-			pass
+			if _is_goblin:
+				_play_goblin_sprite("death", true)
 		_:
 			pass
 
@@ -177,6 +187,7 @@ func _set_state(new_state: State) -> void:
 	if new_state == State.ATTACKING and previous != State.ATTACKING and previous != State.HIT:
 		attack_timer = 0.35
 	state_changed.emit(state_name())
+	_sync_goblin_loop_anim()
 
 
 func _resume_after_hit() -> void:
@@ -216,6 +227,9 @@ func _lunge() -> void:
 		return
 	if _is_slime:
 		_play_slime_attack()
+		return
+	if _is_goblin:
+		_play_goblin_sprite("attack", true)
 		return
 	_kill_feedback()
 	_feedback_tween = create_tween()
@@ -274,6 +288,8 @@ func _cache_nodes() -> void:
 		body = deform_root.get_node_or_null("Body")
 	if sprite == null and deform_root:
 		sprite = deform_root.get_node_or_null("Sprite")
+	if animated_sprite == null and deform_root:
+		animated_sprite = deform_root.get_node_or_null("AnimatedSprite2D")
 	if name_label == null:
 		name_label = $NameLabel
 		hp_bar = $HPBar
@@ -281,6 +297,19 @@ func _cache_nodes() -> void:
 
 
 func _apply_visual(definition: Dictionary) -> void:
+	if _is_goblin:
+		if animated_sprite:
+			animated_sprite.visible = true
+			_ensure_goblin_anim_connected()
+		if sprite:
+			sprite.visible = false
+			sprite.texture = null
+		if body:
+			body.visible = false
+		return
+	if animated_sprite:
+		animated_sprite.visible = false
+		animated_sprite.stop()
 	var tex_path := String(definition.get("texture", ""))
 	var has_sprite := tex_path != "" and ResourceLoader.exists(tex_path)
 	if has_sprite and sprite:
@@ -295,6 +324,45 @@ func _apply_visual(definition: Dictionary) -> void:
 	if body:
 		body.visible = true
 		body.color = definition.get("color", Color(0.7, 0.7, 0.7))
+
+
+func _ensure_goblin_anim_connected() -> void:
+	if _goblin_anim_connected or animated_sprite == null:
+		return
+	animated_sprite.animation_finished.connect(_on_goblin_animation_finished)
+	_goblin_anim_connected = true
+
+
+func _play_goblin_sprite(anim: String, oneshot: bool) -> void:
+	if not _is_goblin or animated_sprite == null or animated_sprite.sprite_frames == null:
+		return
+	if not animated_sprite.sprite_frames.has_animation(anim):
+		return
+	_goblin_oneshot = oneshot
+	animated_sprite.play(anim)
+
+
+func _sync_goblin_loop_anim() -> void:
+	if not _is_goblin or _goblin_oneshot:
+		return
+	match combat_state:
+		State.MOVING:
+			_play_goblin_sprite("move", false)
+		State.ATTACKING:
+			_play_goblin_sprite("idle", false)
+		_:
+			pass
+
+
+func _on_goblin_animation_finished() -> void:
+	if not _is_goblin or animated_sprite == null:
+		return
+	var finished := String(animated_sprite.animation)
+	if finished == "death":
+		return
+	if finished == "attack" or finished == "hurt":
+		_goblin_oneshot = false
+		_sync_goblin_loop_anim()
 
 
 func _apply_boss_visual() -> void:
