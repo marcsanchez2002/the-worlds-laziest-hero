@@ -13,6 +13,8 @@ const SPRITE_IDLE := "idle"
 const SPRITE_ATTACK := "attack"
 const SPRITE_DOWN := "down"
 const SPRITE_WAKE_UP := "wake_up"
+const HERO_SPRITE_POSITION := Vector2(0, -50)
+const HERO_SPRITE_SCALE := Vector2(0.22, 0.22)
 
 enum State { ACTIVE, DOWN }
 
@@ -31,6 +33,7 @@ var _bed_level: int = 0
 var _sprite_oneshot := false
 @onready var visual: Node2D = $Visual
 @onready var bed: Polygon2D = $Visual/Bed
+@onready var bed_art: Sprite2D = $Visual/BedArt
 @onready var sleep_label: Label = $Visual/SleepLabel
 @onready var hp_bar: ProgressBar = $HPBar
 @onready var hp_label: Label = $HPLabel
@@ -68,6 +71,11 @@ func setup_vitals(max_hp_value: float, regen: float) -> void:
 		visual.position = Vector2.ZERO
 		visual.scale = Vector2.ONE
 		visual.modulate = Color.WHITE
+	if animated_sprite:
+		animated_sprite.position = HERO_SPRITE_POSITION
+		animated_sprite.rotation = 0.0
+		animated_sprite.scale = HERO_SPRITE_SCALE
+		animated_sprite.modulate = Color.WHITE
 	_sprite_oneshot = false
 	_set_sleep_text()
 	_start_idle()
@@ -127,8 +135,6 @@ func apply_bed_tier(level: int, color: Color) -> void:
 func play_animation(anim_name: String) -> void:
 	match anim_name:
 		ANIM_ATTACK:
-			_nudge_attack()
-			_flash(Color(1.0, 0.92, 0.62))
 			_play_sprite(SPRITE_ATTACK, true)
 		ANIM_HIT:
 			_shake()
@@ -148,38 +154,31 @@ func play_animation(anim_name: String) -> void:
 
 
 func _start_idle() -> void:
-	if visual == null or state == State.DOWN:
+	if animated_sprite == null or state == State.DOWN:
 		return
 	if _idle_tween and _idle_tween.is_valid():
 		_idle_tween.kill()
-	visual.scale = Vector2.ONE
+	animated_sprite.scale = HERO_SPRITE_SCALE
 	_idle_tween = create_tween().set_loops()
-	_idle_tween.tween_property(visual, "scale", Vector2(1.015, 0.985), 1.15)
-	_idle_tween.tween_property(visual, "scale", Vector2.ONE, 1.15)
+	_idle_tween.tween_property(animated_sprite, "scale", Vector2(0.2233, 0.2167), 1.15)
+	_idle_tween.tween_property(animated_sprite, "scale", HERO_SPRITE_SCALE, 1.15)
 	if not _sprite_oneshot:
 		_play_sprite(SPRITE_IDLE, false)
 
 
-func _nudge_attack() -> void:
-	if visual == null or state == State.DOWN:
-		return
-	if _action_tween and _action_tween.is_valid():
-		_action_tween.kill()
-	_action_tween = create_tween()
-	_action_tween.tween_property(visual, "position:x", -18.0, 0.04)
-	_action_tween.tween_property(visual, "position:x", 0.0, 0.10)
-
-
 func _shake() -> void:
-	if visual == null:
+	if animated_sprite == null:
 		return
 	if not SettingsManager.screen_shake:
 		return
 	if _action_tween and _action_tween.is_valid():
 		_action_tween.kill()
-	visual.position = Vector2(randf_range(-8.0, 8.0), randf_range(-4.0, 4.0))
+	animated_sprite.position = HERO_SPRITE_POSITION + Vector2(
+		randf_range(-8.0, 8.0),
+		randf_range(-4.0, 4.0)
+	)
 	_action_tween = create_tween()
-	_action_tween.tween_property(visual, "position", Vector2.ZERO, 0.14)
+	_action_tween.tween_property(animated_sprite, "position", HERO_SPRITE_POSITION, 0.14)
 
 
 func _play_down() -> void:
@@ -189,12 +188,22 @@ func _play_down() -> void:
 		_action_tween.kill()
 	if sleep_label:
 		sleep_label.text = "💤"
-	if visual:
-		visual.scale = Vector2.ONE
+	if animated_sprite:
+		animated_sprite.scale = HERO_SPRITE_SCALE
 		_action_tween = create_tween()
-		_action_tween.tween_property(visual, "rotation", 0.18, 0.22)
-		_action_tween.parallel().tween_property(visual, "position", Vector2(12.0, 10.0), 0.22)
-		_action_tween.parallel().tween_property(visual, "scale", Vector2(0.92, 0.92), 0.22)
+		_action_tween.tween_property(animated_sprite, "rotation", 0.18, 0.22)
+		_action_tween.parallel().tween_property(
+			animated_sprite,
+			"position",
+			HERO_SPRITE_POSITION + Vector2(12.0, 10.0),
+			0.22
+		)
+		_action_tween.parallel().tween_property(
+			animated_sprite,
+			"scale",
+			HERO_SPRITE_SCALE * 0.92,
+			0.22
+		)
 	_play_sprite(SPRITE_DOWN, false)
 
 
@@ -204,14 +213,24 @@ func _play_wake() -> void:
 	if _action_tween and _action_tween.is_valid():
 		_action_tween.kill()
 	_play_sprite(SPRITE_WAKE_UP, true)
-	if visual == null:
+	if animated_sprite == null:
 		_start_idle()
 		return
 	_action_tween = create_tween()
-	_action_tween.tween_property(visual, "rotation", 0.0, 0.18)
-	_action_tween.parallel().tween_property(visual, "position", Vector2.ZERO, 0.18)
-	_action_tween.parallel().tween_property(visual, "scale", Vector2(1.06, 1.06), 0.12)
-	_action_tween.tween_property(visual, "scale", Vector2.ONE, 0.12)
+	_action_tween.tween_property(animated_sprite, "rotation", 0.0, 0.18)
+	_action_tween.parallel().tween_property(
+		animated_sprite,
+		"position",
+		HERO_SPRITE_POSITION,
+		0.18
+	)
+	_action_tween.parallel().tween_property(
+		animated_sprite,
+		"scale",
+		HERO_SPRITE_SCALE * 1.06,
+		0.12
+	)
+	_action_tween.tween_property(animated_sprite, "scale", HERO_SPRITE_SCALE, 0.12)
 	_action_tween.finished.connect(_start_idle, CONNECT_ONE_SHOT)
 
 
@@ -221,7 +240,14 @@ func _play_sprite(anim: String, oneshot: bool) -> void:
 	if not animated_sprite.sprite_frames.has_animation(anim):
 		return
 	_sprite_oneshot = oneshot
+	_sync_bed_art(anim)
 	animated_sprite.play(anim)
+
+
+func _sync_bed_art(anim: String) -> void:
+	if bed_art == null:
+		return
+	bed_art.visible = anim != SPRITE_DOWN and anim != SPRITE_WAKE_UP
 
 
 func _on_sprite_animation_finished() -> void:
@@ -247,11 +273,11 @@ func _set_sleep_text() -> void:
 
 
 func _flash(tint: Color) -> void:
-	if visual == null:
+	if animated_sprite == null:
 		return
-	visual.modulate = tint
+	animated_sprite.modulate = tint
 	var tween := create_tween()
-	tween.tween_property(visual, "modulate", Color.WHITE, 0.22)
+	tween.tween_property(animated_sprite, "modulate", Color.WHITE, 0.22)
 
 
 func _flash_spark() -> void:

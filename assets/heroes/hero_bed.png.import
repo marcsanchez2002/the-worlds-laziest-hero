@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d2k8xw4mqp7tn"
-path="res://.godot/imported/hero_attack2.png-d72ef5bdd23c1b8b090864afba1a87f3.ctex"
+uid="uid://d2u60m7ebkooi"
+path="res://.godot/imported/hero_bed.png-e2627a3d74e06259ed82b47af2a67c84.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/heroes/hero_attack2.png"
-dest_files=["res://.godot/imported/hero_attack2.png-d72ef5bdd23c1b8b090864afba1a87f3.ctex"]
+source_file="res://assets/heroes/hero_bed.png"
+dest_files=["res://.godot/imported/hero_bed.png-e2627a3d74e06259ed82b47af2a67c84.ctex"]
 
 [params]
 
