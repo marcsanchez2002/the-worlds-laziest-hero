@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dylmcv5vs8lxl"
-path="res://.godot/imported/goblin_move.png-20a72c6026c32f78ef3af7a21043c2b2.ctex"
+uid="uid://cm8ddqfkhnv1h"
+path="res://.godot/imported/goblin_move_5.png-75d2ad108f0331ef70a3e79ef1954bdb.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/enemies/goblin_move.png"
-dest_files=["res://.godot/imported/goblin_move.png-20a72c6026c32f78ef3af7a21043c2b2.ctex"]
+source_file="res://assets/enemies/goblin_move_5.png"
+dest_files=["res://.godot/imported/goblin_move_5.png-75d2ad108f0331ef70a3e79ef1954bdb.ctex"]
 
 [params]
 

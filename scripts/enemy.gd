@@ -5,6 +5,8 @@ const FLOATING_TEXT := preload("res://scenes/ui/floating_text.tscn")
 
 enum State { MOVING, ATTACKING, HIT, DYING, DEAD }
 
+const GOBLIN_IMPACT_FRAME := 5
+
 signal died
 signal hp_changed(current_hp: float, max_hp: float)
 signal attacked(amount: float)
@@ -29,6 +31,7 @@ var _is_slime: bool = false
 var _is_goblin: bool = false
 var _goblin_oneshot: bool = false
 var _goblin_anim_connected: bool = false
+var _goblin_hit_pending: bool = false
 var _slime_time: float = 0.0
 var _slime_lock: bool = false
 var _slime_tween: Tween
@@ -59,6 +62,7 @@ func setup(definition: Dictionary) -> void:
 	_is_slime = String(definition.get("id", "")) == "slime"
 	_is_goblin = String(definition.get("id", "")) == "goblin"
 	_goblin_oneshot = false
+	_goblin_hit_pending = false
 	_slime_time = randf() * 8.0
 	_slime_lock = false
 	_kill_slime_tween()
@@ -100,7 +104,8 @@ func take_damage(amount: float, is_crit: bool = false) -> void:
 	var damage := maxf(1.0, roundf(amount))
 	current_hp = maxf(0.0, roundf(current_hp - damage))
 	_refresh_ui()
-	play_animation("hit")
+	if not _is_goblin_mid_swing():
+		play_animation("hit")
 	_play_hit(damage, is_crit)
 	hp_changed.emit(current_hp, max_hp)
 	if current_hp <= 0.0:
@@ -174,7 +179,8 @@ func _tick_attack(delta: float) -> void:
 		return
 	attack_timer = attack_cooldown
 	play_animation("attack")
-	attacked.emit(attack_damage)
+	if not _is_goblin:
+		attacked.emit(attack_damage)
 
 
 func _set_state(new_state: State) -> void:
@@ -185,7 +191,7 @@ func _set_state(new_state: State) -> void:
 	var previous := combat_state
 	combat_state = new_state
 	if new_state == State.ATTACKING and previous != State.ATTACKING and previous != State.HIT:
-		attack_timer = 0.35
+		attack_timer = 0.0 if _is_goblin else 0.35
 	state_changed.emit(state_name())
 	_sync_goblin_loop_anim()
 
@@ -204,6 +210,9 @@ func _play_hit(amount: float, is_crit: bool) -> void:
 	_spawn_floating(NumberUtil.format_int(amount), Color(1.0, 0.92, 0.45) if is_crit else Color(1, 1, 1), is_crit)
 	if is_crit:
 		_spawn_floating("CRITICAL!", Color(1.0, 0.55, 0.2), true)
+	if _is_goblin_mid_swing():
+		_pause_goblin_swing_briefly(is_crit)
+		return
 	if combat_state != State.DYING and combat_state != State.DEAD:
 		_set_state(State.HIT)
 	_kill_feedback()
@@ -330,7 +339,14 @@ func _ensure_goblin_anim_connected() -> void:
 	if _goblin_anim_connected or animated_sprite == null:
 		return
 	animated_sprite.animation_finished.connect(_on_goblin_animation_finished)
+	animated_sprite.frame_changed.connect(_on_goblin_frame_changed)
 	_goblin_anim_connected = true
+
+
+func _is_goblin_mid_swing() -> bool:
+	if not _is_goblin or not _goblin_oneshot or animated_sprite == null:
+		return false
+	return String(animated_sprite.animation) == "attack"
 
 
 func _play_goblin_sprite(anim: String, oneshot: bool) -> void:
@@ -338,8 +354,73 @@ func _play_goblin_sprite(anim: String, oneshot: bool) -> void:
 		return
 	if not animated_sprite.sprite_frames.has_animation(anim):
 		return
+	if anim != "attack":
+		_goblin_hit_pending = false
 	_goblin_oneshot = oneshot
+	animated_sprite.stop()
 	animated_sprite.play(anim)
+	if anim == "attack":
+		_goblin_hit_pending = true
+
+
+func _resolve_goblin_swing_hit() -> void:
+	if not _goblin_hit_pending:
+		return
+	_goblin_hit_pending = false
+	if combat_state == State.DYING or combat_state == State.DEAD:
+		return
+	if _is_paused():
+		return
+	attacked.emit(attack_damage)
+
+
+func _pause_goblin_swing_briefly(is_crit: bool) -> void:
+	if animated_sprite:
+		animated_sprite.pause()
+	_kill_feedback()
+	if visual == null:
+		return
+	if SettingsManager.screen_shake:
+		visual.position = Vector2(randf_range(-10.0, 10.0), randf_range(-4.0, 4.0))
+	visual.modulate = Color(1.2, 1.2, 1.2) if not is_crit else Color(1.4, 1.15, 0.7)
+	_feedback_tween = create_tween()
+	_feedback_tween.tween_property(visual, "position", Vector2.ZERO, 0.12)
+	_feedback_tween.parallel().tween_property(visual, "modulate", Color.WHITE, 0.12)
+	_feedback_tween.finished.connect(_resume_goblin_swing, CONNECT_ONE_SHOT)
+
+
+func _resume_goblin_swing() -> void:
+	if combat_state == State.DYING or combat_state == State.DEAD:
+		return
+	if animated_sprite == null or String(animated_sprite.animation) != "attack":
+		return
+	if not _goblin_oneshot:
+		return
+	var frame := animated_sprite.frame
+	var progress := animated_sprite.frame_progress
+	animated_sprite.play(&"attack")
+	animated_sprite.set_frame_and_progress(frame, progress)
+
+
+func _on_goblin_frame_changed() -> void:
+	if not _is_goblin or animated_sprite == null:
+		return
+	if String(animated_sprite.animation) != "attack":
+		return
+	if animated_sprite.frame == GOBLIN_IMPACT_FRAME:
+		_resolve_goblin_swing_hit()
+
+
+func _hold_goblin_attack_pose() -> void:
+	if animated_sprite == null or animated_sprite.sprite_frames == null:
+		return
+	if not animated_sprite.sprite_frames.has_animation("attack"):
+		return
+	_goblin_oneshot = false
+	animated_sprite.animation = &"attack"
+	var last := animated_sprite.sprite_frames.get_frame_count("attack") - 1
+	animated_sprite.frame = maxi(last, 0)
+	animated_sprite.pause()
 
 
 func _sync_goblin_loop_anim() -> void:
@@ -349,7 +430,9 @@ func _sync_goblin_loop_anim() -> void:
 		State.MOVING:
 			_play_goblin_sprite("move", false)
 		State.ATTACKING:
-			_play_goblin_sprite("idle", false)
+			var current := String(animated_sprite.animation) if animated_sprite else ""
+			if current == "attack" or current == "hurt":
+				_hold_goblin_attack_pose()
 		_:
 			pass
 
@@ -359,10 +442,14 @@ func _on_goblin_animation_finished() -> void:
 		return
 	var finished := String(animated_sprite.animation)
 	if finished == "death":
+		_goblin_hit_pending = false
 		return
 	if finished == "attack" or finished == "hurt":
 		_goblin_oneshot = false
-		_sync_goblin_loop_anim()
+		if combat_state == State.ATTACKING:
+			_hold_goblin_attack_pose()
+		else:
+			_sync_goblin_loop_anim()
 
 
 func _apply_boss_visual() -> void:
