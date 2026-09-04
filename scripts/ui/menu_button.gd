@@ -1,6 +1,6 @@
 extends Button
 
-const HOVER_SCALE := 1.04
+@export_range(1.0, 1.1, 0.01) var hover_scale := 1.04
 
 var _tween: Tween
 var _hovered: bool = false
@@ -32,7 +32,7 @@ func _animate() -> void:
 	if _tween and _tween.is_valid():
 		_tween.kill()
 	_tween = create_tween()
-	_tween.tween_property(self, "scale", Vector2.ONE * (HOVER_SCALE if _hovered else 1.0), 0.12)
+	_tween.tween_property(self, "scale", Vector2.ONE * (hover_scale if _hovered else 1.0), 0.12)
 
 
 func _on_pressed() -> void:
